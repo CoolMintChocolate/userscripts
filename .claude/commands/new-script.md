@@ -24,9 +24,11 @@ Then bootstrap the new package by performing all of the following steps:
    - Remove the "How it works" section entirely, as it is script-specific
    - Keep the Development and Building sections verbatim
 
-8. Run `pnpm install` from the repo root so the new package is linked into the workspace.
+8. Add a row for the new package to the packages table in the root `README.md`. The row should follow the same format as existing entries: `| [<human-readable name>](packages/<slug>) | <placeholder description> |`. Insert it after the last existing row in the table.
+
+9. Run `pnpm install` from the repo root so the new package is linked into the workspace.
 
 After all steps complete, tell the user:
 - The path to the new package
-- That they should fill in `match` (and optionally `icon`) in `vite.config.ts`, and update the README description
+- That they should fill in `match` (and optionally `icon`) in `vite.config.ts`, and update the placeholder descriptions in both the package `README.md` and the root `README.md`
 - That they can start developing with `pnpm dev` from the package directory
