@@ -1,4 +1,4 @@
-Ask the user for the human-readable name of the new userscript (e.g. "My Cool Script"). From that, derive the slug by lowercasing and replacing spaces with hyphens (e.g. "my-cool-script"). The slug will be used as the package directory name under `packages/` and as the script filename.
+If `$ARGUMENTS` is non-empty, use it as the human-readable name of the new userscript. Otherwise, ask the user for it (e.g. "My Cool Script"). From the name, derive the slug by lowercasing and replacing spaces with hyphens (e.g. "my-cool-script"). The slug will be used as the package directory name under `packages/` and as the script filename.
 
 Then infer a brief one-sentence description of what the script likely does based on its name, and present it to the user for confirmation. Allow the user to accept it as-is or provide their own. Use the confirmed description in the README files.
 
