@@ -8,7 +8,7 @@ A monorepo of personal userscripts, each built with [Vite](https://vitejs.dev/) 
 
 | Package | Description |
 |---|---|
-| [amex-running-balances](packages/amex-running-balances) | Shows a running balance after each transaction on the AMEX account activity page |
+| [Amex Running Balances](packages/amex-running-balances) | Shows a running balance after each transaction on the AMEX account activity page |
 | [Chase Running Balances](packages/chase-running-balances) | Adds a running balance column to Chase bank transaction lists. |
 
 ## Development
