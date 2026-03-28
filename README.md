@@ -1,5 +1,7 @@
 # userscripts
 
+[![Userscripts](https://img.shields.io/badge/Userscripts-Install-blue)](https://coolmintchocolate.github.io/userscripts/)
+
 A monorepo of personal userscripts, each built with [Vite](https://vitejs.dev/) and [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey).
 
 ## Packages

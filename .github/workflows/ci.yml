@@ -78,6 +78,7 @@ jobs:
             <ul>
             $(echo -e "$links")
             </ul>
+            <p><a href="https://github.com/coolmintchocolate/userscripts">View source on GitHub</a></p>
           </body>
           </html>
           EOF
