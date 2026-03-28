@@ -4,6 +4,7 @@
 
 - **mise** manages tool versions (`mise.toml`). Node.js version is pinned there.
 - **PNPM** is the package manager (`packageManager` field in `package.json`). Run `pnpm install` from the root.
+- **Biome** handles linting and formatting. After making code changes, run `pnpm lint:fix` from the root to auto-fix style and linting issues.
 
 ## Monorepo structure
 
