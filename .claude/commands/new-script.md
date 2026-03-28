@@ -1,5 +1,7 @@
 Ask the user for the human-readable name of the new userscript (e.g. "My Cool Script"). From that, derive the slug by lowercasing and replacing spaces with hyphens (e.g. "my-cool-script"). The slug will be used as the package directory name under `packages/` and as the script filename.
 
+Then infer a brief one-sentence description of what the script likely does based on its name, and present it to the user for confirmation. Allow the user to accept it as-is or provide their own. Use the confirmed description in the README files.
+
 Then bootstrap the new package by performing all of the following steps:
 
 1. Create the directory `packages/<slug>/src/`.
@@ -20,15 +22,16 @@ Then bootstrap the new package by performing all of the following steps:
 6. Create an empty `packages/<slug>/src/main.ts` file.
 
 7. Create `packages/<slug>/README.md` using the same structure as `packages/amex-running-balances/README.md`, but:
-   - Replace the title and description with the human-readable name and a placeholder description
+   - Use the human-readable name as the title
+   - Use the confirmed description as the opening paragraph
    - Remove the "How it works" section entirely, as it is script-specific
    - Keep the Development and Building sections verbatim
 
-8. Add a row for the new package to the packages table in the root `README.md`. The row should follow the same format as existing entries: `| [<human-readable name>](packages/<slug>) | <placeholder description> |`. Insert it after the last existing row in the table.
+8. Add a row for the new package to the packages table in the root `README.md`, using the confirmed description. The row should follow the same format as existing entries: `| [<human-readable name>](packages/<slug>) | <description> |`. Insert it after the last existing row in the table.
 
 9. Run `pnpm install` from the repo root so the new package is linked into the workspace.
 
 After all steps complete, tell the user:
 - The path to the new package
-- That they should fill in `match` (and optionally `icon`) in `vite.config.ts`, and update the placeholder descriptions in both the package `README.md` and the root `README.md`
+- That they should fill in `match` (and optionally `icon`) in `vite.config.ts`
 - That they can start developing with `pnpm dev` from the package directory
