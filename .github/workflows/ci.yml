@@ -46,16 +46,41 @@ jobs:
             fi
           done
 
-      - name: Collect build artifacts
+      - name: Collect build artifacts and generate index
         run: |
           mkdir -p _site
+          links=""
           for pkg in packages/*/; do
             name=$(basename "$pkg")
             if [ -d "$pkg/dist" ]; then
               mkdir -p "_site/$name"
               cp "$pkg"/dist/*.user.js "_site/$name/"
+              for f in "$pkg"/dist/*.user.js; do
+                filename=$(basename "$f")
+                links="$links<li><a href=\"$name/$filename\">$name/$filename</a></li>\n"
+              done
             fi
           done
+          cat > _site/index.html <<EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Userscripts</title>
+            <style>
+              body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+              a { color: #0969da; }
+            </style>
+          </head>
+          <body>
+            <h1>Userscripts</h1>
+            <ul>
+            $(echo -e "$links")
+            </ul>
+          </body>
+          </html>
+          EOF
 
       - uses: actions/upload-pages-artifact@v3
         with:
