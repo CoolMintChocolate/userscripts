@@ -1,1 +1,33 @@
 # userscripts
+
+A monorepo of personal userscripts, each built with [Vite](https://vitejs.dev/) and [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey).
+
+## Packages
+
+| Package | Description |
+|---|---|
+| [amex-running-balances](packages/amex-running-balances) | Shows a running balance after each transaction on the AMEX account activity page |
+
+## Development
+
+Each package supports a live-reload dev server that serves the userscript locally:
+
+```sh
+cd packages/<package-name>
+pnpm dev
+```
+
+Then add the served URL to [ViolentMonkey](https://violentmonkey.github.io/) as a local script.
+
+> **Note:** In dev mode the script is served from `localhost`, which browsers block due to Content Security Policy (CSP). You will need to disable CSP while developing — for example, in Firefox use an extension such as [Disable CSP for a minute](https://addons.mozilla.org/en-US/firefox/addon/disable-csp-for-a-minute/). This is only required during development; built scripts are not affected.
+
+## Building
+
+To build the final userscript for a package:
+
+```sh
+cd packages/<package-name>
+pnpm build
+```
+
+The compiled `.user.js` file will be output to the `dist/` directory.
