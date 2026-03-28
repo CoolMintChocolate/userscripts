@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+
+      - uses: pnpm/action-setup@v4
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: lint
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+
+      - uses: pnpm/action-setup@v4
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: |
+          for pkg in packages/*/; do
+            if [ -f "$pkg/package.json" ]; then
+              (cd "$pkg" && pnpm build)
+            fi
+          done
+
+      - name: Collect build artifacts
+        run: |
+          mkdir -p _site
+          for pkg in packages/*/; do
+            name=$(basename "$pkg")
+            if [ -d "$pkg/dist" ]; then
+              mkdir -p "_site/$name"
+              cp "$pkg"/dist/*.user.js "_site/$name/"
+            fi
+          done
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - uses: actions/deploy-pages@v4
+        id: deploy
