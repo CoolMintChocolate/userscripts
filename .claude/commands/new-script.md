@@ -17,7 +17,7 @@ Then bootstrap the new package by performing all of the following steps:
 5. Create `packages/<slug>/vite.config.ts` by copying from `packages/amex-running-balances/vite.config.ts`, but:
    - Set the `name` field inside `userscript` to the human-readable name the user provided
    - Remove the `icon` and `match` fields from `userscript`, as these are script-specific and the user should fill them in
-   - Leave everything else (version, downloadURL, namespace) as-is since they are derived dynamically
+   - Leave everything else (version, downloadURL, updateURL, namespace) as-is since they are derived dynamically
 
 6. Create an empty `packages/<slug>/src/main.ts` file.
 

@@ -17,6 +17,7 @@ export default defineConfig({
         version: pkg.version,
         namespace: "https://github.com/CoolMintChocolate",
         downloadURL,
+        updateURL: downloadURL,
         match: [
           "https://www.pornhub.com/view_video.php*",
           "https://xhamster.com/videos/*",

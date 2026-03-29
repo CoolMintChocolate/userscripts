@@ -19,6 +19,7 @@ export default defineConfig({
         namespace: "https://github.com/CoolMintChocolate",
         match: ["https://global.americanexpress.com/activity*"],
         downloadURL,
+        updateURL: downloadURL,
       },
     }),
   ],

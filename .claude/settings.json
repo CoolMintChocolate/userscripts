@@ -4,7 +4,8 @@
       "Bash(pnpm --version)",
       "Bash(pnpm install:*)",
       "mcp__chrome-devtools__evaluate_script",
-      "mcp__chrome-devtools__take_screenshot"
+      "mcp__chrome-devtools__take_screenshot",
+      "Bash(pnpm lint:fix)"
     ]
   }
 }

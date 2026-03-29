@@ -19,6 +19,7 @@ export default defineConfig({
         namespace: "https://github.com/CoolMintChocolate",
         match: ["https://secure.chase.com/web/auth/dashboard*"],
         downloadURL,
+        updateURL: downloadURL,
       },
     }),
   ],
