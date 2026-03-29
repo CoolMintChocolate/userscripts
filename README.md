@@ -10,6 +10,7 @@ A monorepo of personal userscripts, each built with [Vite](https://vitejs.dev/) 
 |---|---|
 | [Amex Running Balances](packages/amex-running-balances) | Shows a running balance after each transaction on the AMEX account activity page |
 | [Chase Running Balances](packages/chase-running-balances) | Adds a running balance column to Chase bank transaction lists. |
+| [Send current tab to MeTube](packages/send-current-tab-to-metube) | Adds a button to send the current page's URL to a self-hosted MeTube instance for downloading. |
 
 ## Development
 

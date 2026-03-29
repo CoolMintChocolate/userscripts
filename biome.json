@@ -15,6 +15,7 @@
   },
   "linter": {
     "enabled": true,
+    "includes": ["**", "!**/*.d.ts"],
     "rules": {
       "recommended": true
     }
