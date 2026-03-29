@@ -15,6 +15,6 @@
 ## Each package
 
 - Built with **Vite** + **vite-plugin-monkey**, which wraps the output as a `.user.js` userscript.
-- `pnpm dev` — starts a local dev server; add the served URL to ViolentMonkey as a local script. Requires CSP to be disabled in the browser (dev mode only).
+- `pnpm dev` — starts a local dev server; add the served URL to TamperMonkey as a local script. Requires CSP to be disabled in the browser (dev mode only).
 - `pnpm build` — outputs the final `*.user.js` to `dist/`.
 - Userscripts should use native browser APIs over GreaseMonkey-specific ones where possible.

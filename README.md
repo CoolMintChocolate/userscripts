@@ -21,7 +21,7 @@ cd packages/<package-name>
 pnpm dev
 ```
 
-Then add the served URL to [ViolentMonkey](https://violentmonkey.github.io/) as a local script.
+Then add the served URL to [TamperMonkey](https://www.tampermonkey.net/) as a local script.
 
 > **Note:** In dev mode the script is served from `localhost`, which browsers block due to Content Security Policy (CSP). You will need to disable CSP while developing — for example, in Firefox use an extension such as [Disable CSP for a minute](https://addons.mozilla.org/en-US/firefox/addon/disable-csp-for-a-minute/). This is only required during development; built scripts are not affected.
 
