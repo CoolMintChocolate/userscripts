@@ -115,4 +115,11 @@ function createFloatingUploadButton() {
 }
 
 // Initialize button when DOM is ready
-document.addEventListener("DOMContentLoaded", createFloatingUploadButton);
+if (
+  document.readyState === "complete" ||
+  document.readyState === "interactive"
+) {
+  createFloatingUploadButton();
+} else {
+  document.addEventListener("DOMContentLoaded", createFloatingUploadButton);
+}
