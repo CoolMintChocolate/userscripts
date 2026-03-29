@@ -63,6 +63,18 @@ importers:
         specifier: 'catalog:'
         version: 7.1.9(postcss@8.5.8)(vite@7.3.1)
 
+  packages/emp-auto-tag:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
+      vite:
+        specifier: 'catalog:'
+        version: 7.3.1
+      vite-plugin-monkey:
+        specifier: 'catalog:'
+        version: 7.1.9(postcss@8.5.8)(vite@7.3.1)
+
   packages/emp-send-torrent-to-deluge:
     devDependencies:
       typescript:

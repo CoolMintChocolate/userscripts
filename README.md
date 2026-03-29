@@ -12,6 +12,7 @@ A monorepo of personal userscripts, each built with [Vite](https://vitejs.dev/) 
 | [Chase Running Balances](packages/chase-running-balances) | Adds a running balance column to Chase bank transaction lists. |
 | [Send current tab to MeTube](packages/send-current-tab-to-metube) | Adds a button to send the current page's URL to a self-hosted MeTube instance for downloading. |
 | [EMP Send torrent to Deluge](packages/emp-send-torrent-to-deluge) | Adds a button on EMP torrent pages to send torrents directly to your Deluge torrent client. |
+| [EMP Auto Tag](packages/emp-auto-tag) | Automatically applies tags to torrents on EMP based on configurable rules. |
 
 ## Development
 
