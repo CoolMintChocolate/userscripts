@@ -66,7 +66,10 @@ function renderBalances(): Element | null {
     ".activity-tile__recon-bar-balance",
   );
   if (!balanceEl) {
-    warn("Balance element not found (.activity-tile__recon-bar-balance)");
+    // Normal for full-range views ("All transactions", "Year to date", etc.):
+    // Chase shows no statement balance there, so there's nothing to anchor a
+    // running total on. Skip quietly.
+    log("No balance to anchor on (not a statement view), skipping");
     return null;
   }
 
@@ -122,7 +125,15 @@ let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
 // Re-render, pausing observation so our own DOM writes don't trigger us.
 function rebuild() {
   contentObserver?.disconnect();
-  observedContainer = renderBalances();
+  const container = renderBalances();
+  // A period switch tears out the posted table and loads the replacement a
+  // beat later, so renderBalances() can return null mid-transition (and full
+  // range views like "Year to date" have no balance to anchor on at all). Keep
+  // the last known-good container in those cases: it's the activity tile, which
+  // survives the swap, so staying attached to it means we still catch the new
+  // table when it arrives. Dropping it would leave the observer dead until the
+  // next URL change.
+  if (container) observedContainer = container;
   // Re-arm on the current container. Switching periods swaps the table's rows
   // but not the tile, so the container stays put; account switches change the
   // URL and re-run main(), which re-resolves it.
