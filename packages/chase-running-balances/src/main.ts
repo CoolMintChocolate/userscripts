@@ -46,22 +46,28 @@ function getRowAmountCents(row: HTMLTableRowElement): number {
   return Math.round(parseAmount(amountStr) * 100);
 }
 
-let paginationObserver: MutationObserver | null = null;
-
-function addRunningBalances() {
-  // Tear down any observer from a previous run (e.g. a prior SPA view) so we
-  // don't leak observers or double-process rows.
-  if (paginationObserver) {
-    paginationObserver.disconnect();
-    paginationObserver = null;
+// The smallest subtree that contains both nodes. We observe this so any
+// re-render of the activity tile (period switch, pagination) is caught.
+function lowestCommonAncestor(a: Node, b: Node): Element | null {
+  const ancestors = new Set<Node>();
+  for (let n: Node | null = a; n; n = n.parentNode) ancestors.add(n);
+  for (let n: Node | null = b; n; n = n.parentNode) {
+    if (ancestors.has(n) && n instanceof Element) return n;
   }
+  return null;
+}
 
+// Build (or rebuild) the balance column from the current DOM. Idempotent: it
+// strips its own prior output first, so it's safe to call on every change.
+// Returns the container to watch for the next change, or null if the activity
+// view isn't present.
+function renderBalances(): Element | null {
   const balanceEl = document.querySelector<HTMLElement>(
     ".activity-tile__recon-bar-balance",
   );
   if (!balanceEl) {
     warn("Balance element not found (.activity-tile__recon-bar-balance)");
-    return;
+    return null;
   }
 
   const currentBalance = parseAmount(balanceEl.textContent?.trim() ?? "0");
@@ -71,73 +77,73 @@ function addRunningBalances() {
   const tables = document.querySelectorAll("table.mds-activity-table");
   if (!tables[1]) {
     warn(`Expected 2 activity tables, found ${tables.length}`);
-    return;
+    return null;
   }
   const postedTable = tables[1];
 
-  // Remove previous additions if re-running
-  const stale = postedTable.querySelectorAll(
+  // Strip our prior output so a rebuild starts clean.
+  for (const el of postedTable.querySelectorAll(
     ".running-balance-header, .running-balance-cell",
-  );
-  if (stale.length > 0) {
-    log("Removing", stale.length, "stale balance elements");
-    for (const el of stale) el.remove();
+  )) {
+    el.remove();
   }
 
   // Add header for the Balance column
   const headerRow = postedTable.querySelector("tr");
   if (!headerRow) {
     warn("No header row found in posted table");
-    return;
+    return null;
   }
-  if (!headerRow.querySelector(".running-balance-header")) {
-    const balanceHeader = document.createElement("th");
-    balanceHeader.scope = "col";
-    balanceHeader.className =
-      "running-balance-header mds-activity-table__column-header mds-activity-table__column-header--right";
-    balanceHeader.style.minWidth = "120px";
-    balanceHeader.innerHTML = '<span style="padding: 0 16px;">Balance</span>';
-    headerRow.insertBefore(balanceHeader, headerRow.lastElementChild);
-  }
+  const balanceHeader = document.createElement("th");
+  balanceHeader.scope = "col";
+  balanceHeader.className =
+    "running-balance-header mds-activity-table__column-header mds-activity-table__column-header--right";
+  balanceHeader.style.minWidth = "120px";
+  balanceHeader.innerHTML = '<span style="padding: 0 16px;">Balance</span>';
+  headerRow.insertBefore(balanceHeader, headerRow.lastElementChild);
 
   // Process each transaction row
   const rows =
     postedTable.querySelectorAll<HTMLTableRowElement>("tr[data-values]");
   let runningCents = balanceCents;
-
   for (const row of rows) {
     addBalanceToRow(row, runningCents);
     runningCents -= getRowAmountCents(row);
   }
   log("Processed", rows.length, "rows");
 
-  // Watch for new rows added by "See more activity" pagination
-  paginationObserver = new MutationObserver(() => {
-    const allRows =
-      postedTable.querySelectorAll<HTMLTableRowElement>("tr[data-values]");
-    const newRows = postedTable.querySelectorAll<HTMLTableRowElement>(
-      "tr[data-values]:not(:has(.running-balance-cell))",
-    );
-    if (newRows.length === 0) return;
+  return lowestCommonAncestor(balanceEl, postedTable) ?? document.body;
+}
 
-    log("Pagination detected:", newRows.length, "new rows");
+let contentObserver: MutationObserver | null = null;
+let observedContainer: Element | null = null;
+let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
 
-    // Recalculate from the last row that has a balance to find the
-    // running total for the new rows
-    let cents = balanceCents;
-    for (const row of allRows) {
-      const existing = row.querySelector(".running-balance-cell");
-      if (existing) {
-        cents -= getRowAmountCents(row);
-        continue;
-      }
-      addBalanceToRow(row, cents);
-      cents -= getRowAmountCents(row);
-    }
-    log("Total rows after pagination:", allRows.length);
-  });
-  paginationObserver.observe(postedTable, { childList: true, subtree: true });
-  log("Watching for pagination changes");
+// Re-render, pausing observation so our own DOM writes don't trigger us.
+function rebuild() {
+  contentObserver?.disconnect();
+  observedContainer = renderBalances();
+  // Re-arm on the current container. Switching periods swaps the table's rows
+  // but not the tile, so the container stays put; account switches change the
+  // URL and re-run main(), which re-resolves it.
+  if (contentObserver && observedContainer?.isConnected) {
+    contentObserver.observe(observedContainer, {
+      childList: true,
+      subtree: true,
+    });
+  }
+}
+
+// Chase re-renders the activity table in place when you pick a different
+// period or page in more rows, with no URL change. Watch the tile's DOM and
+// rebuild when its rows change. Debounced so a burst of mutations coalesces
+// into one rebuild.
+function scheduleRebuild() {
+  if (rebuildTimer !== null) clearTimeout(rebuildTimer);
+  rebuildTimer = setTimeout(() => {
+    rebuildTimer = null;
+    rebuild();
+  }, 200);
 }
 
 function waitForElement(selector: string, timeout = 10000): Promise<Element> {
@@ -176,7 +182,11 @@ async function main() {
       log("Superseded before render, skipping");
       return;
     }
-    addRunningBalances();
+    // One observer for the page's lifetime; rebuild() re-points it each run.
+    if (!contentObserver) {
+      contentObserver = new MutationObserver(scheduleRebuild);
+    }
+    rebuild();
     log("Done");
   } catch (e) {
     warn("Failed to initialize:", e);
