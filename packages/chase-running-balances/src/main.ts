@@ -46,7 +46,16 @@ function getRowAmountCents(row: HTMLTableRowElement): number {
   return Math.round(parseAmount(amountStr) * 100);
 }
 
+let paginationObserver: MutationObserver | null = null;
+
 function addRunningBalances() {
+  // Tear down any observer from a previous run (e.g. a prior SPA view) so we
+  // don't leak observers or double-process rows.
+  if (paginationObserver) {
+    paginationObserver.disconnect();
+    paginationObserver = null;
+  }
+
   const balanceEl = document.querySelector<HTMLElement>(
     ".activity-tile__recon-bar-balance",
   );
@@ -103,7 +112,7 @@ function addRunningBalances() {
   log("Processed", rows.length, "rows");
 
   // Watch for new rows added by "See more activity" pagination
-  const observer = new MutationObserver(() => {
+  paginationObserver = new MutationObserver(() => {
     const allRows =
       postedTable.querySelectorAll<HTMLTableRowElement>("tr[data-values]");
     const newRows = postedTable.querySelectorAll<HTMLTableRowElement>(
@@ -127,7 +136,7 @@ function addRunningBalances() {
     }
     log("Total rows after pagination:", allRows.length);
   });
-  observer.observe(postedTable, { childList: true, subtree: true });
+  paginationObserver.observe(postedTable, { childList: true, subtree: true });
   log("Watching for pagination changes");
 }
 
@@ -152,12 +161,21 @@ function waitForElement(selector: string, timeout = 10000): Promise<Element> {
   });
 }
 
+let runId = 0;
+
 async function main() {
+  const id = ++runId;
   log("Script started");
   try {
     await waitForElement(".activity-tile__recon-bar-balance");
     // Small delay to ensure the table is fully rendered
     await new Promise((r) => setTimeout(r, 500));
+    // A newer navigation may have superseded this run while we were waiting.
+    // Bail so a stale run can't clobber the current view's balances.
+    if (id !== runId) {
+      log("Superseded before render, skipping");
+      return;
+    }
     addRunningBalances();
     log("Done");
   } catch (e) {
@@ -165,4 +183,28 @@ async function main() {
   }
 }
 
+// Chase's dashboard is a SPA: navigating between accounts swaps the DOM via the
+// History API without a full page load, so TamperMonkey never re-fires the
+// script. Detect in-page navigation ourselves and re-run.
+function watchForNavigation(onNavigate: () => void) {
+  let lastUrl = location.href;
+  const check = () => {
+    if (location.href === lastUrl) return;
+    lastUrl = location.href;
+    log("Navigation detected:", lastUrl);
+    onNavigate();
+  };
+
+  for (const method of ["pushState", "replaceState"] as const) {
+    const original = history[method];
+    history[method] = function (this: History, ...args) {
+      const result = original.apply(this, args);
+      check();
+      return result;
+    };
+  }
+  window.addEventListener("popstate", check);
+}
+
 main();
+watchForNavigation(main);
